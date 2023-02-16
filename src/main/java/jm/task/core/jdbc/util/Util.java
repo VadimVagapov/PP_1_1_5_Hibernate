@@ -11,6 +11,9 @@ public class Util {
     private static final String PASSWORD = "root";
     private static Connection connection = null;
     public static Connection getConnection() {
+        if (connection != null) {
+            return connection;
+        }
         try {
             Driver driver = new com.mysql.cj.jdbc.Driver();
             DriverManager.registerDriver(driver);

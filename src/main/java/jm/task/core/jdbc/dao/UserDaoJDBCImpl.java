@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private List<User> allUsers = new ArrayList<>();
     public UserDaoJDBCImpl() {
     }
 
@@ -36,22 +35,8 @@ public class UserDaoJDBCImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
         String sqlCommandSaveUser = "INSERT users (Username, User_lastName, Age) VALUES ('" +
                 name + "', '" + lastName + "', " + age + ")";
-        User user = new User();
-        user.setName(name);
-        user.setLastName(lastName);
-        user.setAge(age);
-
         try (Statement statement = Util.getConnection().createStatement()) {
             statement.executeUpdate(sqlCommandSaveUser);
-            String sqlCommandGetId = "SELECT id FROM users WHERE Username = '" + name +
-                    "' AND User_lastName = '" + lastName + "' AND Age = " + age;
-            ResultSet resultSet = statement.executeQuery(sqlCommandGetId);
-            long id = 0;
-            while(resultSet.next()) {
-                id = resultSet.getInt(1);
-            }
-            user.setId(id);
-            allUsers.add(user);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -67,6 +52,21 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public List<User> getAllUsers() {
+        List<User> allUsers = new ArrayList<>();
+        try(Statement statement = Util.getConnection().createStatement()) {
+            String sqlCommandGetId = "SELECT * FROM users";
+            ResultSet resultSet = statement.executeQuery(sqlCommandGetId);
+            while(resultSet.next()) {
+                User user = new User();
+                user.setId((long)resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setLastName(resultSet.getString(3));
+                user.setAge(resultSet.getByte(4));
+                allUsers.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return allUsers;
     }
 
